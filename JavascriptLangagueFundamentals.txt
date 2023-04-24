@@ -1,0 +1,758 @@
+
+
+ES 6 Features
+Node.js Arch and implementation
+Microservices - 2.5
+.....................................................................................
+			     Javascript fundamentals
+...................................................................................
+
+What is node js?
+   Node.js is platform and runtime.
+   Node.js is used to run javascript applications in standalone.
+
+Javascript can be executed in two env.
+
+1.Browser
+   Every web browser has embeded js engine/runtime,where we can js code
+2.standalone
+   Outside web browser we have js runtime(node),where we can js code.
+
+
+....................................................................................
+ 			 ES 6 fundamentals
+....................................................................................
+
+what is node.js?
+  It is runtime for running js apps
+
+What is Java script?
+ Javascript is one of the most popular programming language.
+ Javascript is Object based, functional style programming language.
+
+Java script language standarized by the Committe "ECMA" - European computer manfacturing assocation.
+
+In 1995, javascript language created by Brendan Eich  at Netscap Communication.
+
+Once the language created by Brendan Eich,The language submitted to the committe called ECMA For standarization.
+
+According to ECMA
+1.ES 1.0  -97
+2.ES 3.0 -99
+3.ES 4.0 -2006
+4.ES 5.0 -2007
+   During this period, Node.js was created.
+5.ES 6/ECMA 2015 - 2012-2015
+6.ES 7-2017
+etc...
+
+ES 6 Features:
+.............
+1.language fundamentals
+2.functions
+3.object based concepts and implementations
+....
+Modularity
+ -Commonjs
+ -ES 6 Modularity.
+...................................................................................
+ES 6 Features:
+.............
+1.language fundamentals
+2.functions
+3.object based concepts and implementations
+....
+Modularity
+ -Commonjs
+ -ES 6 Modularity.
+...................................................................................
+
+Project setup:
+E:\session\IBM\2022\sep\nodejsmicroservice>mkdir jsapps
+
+E:\session\IBM\2022\sep\nodejsmicroservice\>cd jsapps
+
+
+E:\session\IBM\2022\sep\nodejsmicroservice\jsapps>mkdir src
+
+E:\session\IBM\2022\sep\nodejsmicroservice\es6app>code .
+
+src/index.js
+console.log("Hello,Node.js")
+
+E:\session\IBM\2022\sep\nodejsmicroservice\es6app>node src/index.js
+
+Language fundamentals:
+
+JS is dynamic typed language, the data type is not declared,type of variable is understood during runtime.
+
+variables are declared using "var,let,const,this" keywords
+
+es 6 variables are declared using "let and const"
+
+let | const variableName = value(literal)
+
+
+types of literals
+
+1.string
+2.number
+3.boolean
+4.undefined
+5.NaN
+6.infinity
+7.function
+8.null
+9.object
+
+
+types ;
+
+1.string
+2.number - number,infinity,NaN
+3.boolean
+4.undefined
+5.function
+6.object - null, object
+
+strings 
+
+1. declared using  "" ,'',``(es6)
+2. 16 bit unicode character
+
+`` - back tick notation:
+
+-string interpolation
+-multi line string literal
+
+//strings 
+//"",'',``(backtick -template literals) 
+//var firstName = 'Subramaian'
+let firstName = 'Subramanian'
+let lastName = "Murugan"
+console.log("Name " + firstName + lastName)
+console.log("Name ", firstName, lastName)
+//es 6 feature
+console.log(`Name ${firstName} ${lastName}`)
+//es 6 back tic notation is used for string concatation.
+let title = 'IBM'
+let doc = "<html>" +
+    "<head>" +
+    "<title>" + title + "</title>" +
+    "</head>" +
+    "<body>" +
+    "<h1>Hello</h1>" +
+    "</body>";
+console.log(doc)
+
+let docOne = `<html>
+           <head>
+            <title>${title}</title>
+            </head>
+          <body>
+            <h1>Hello</h1>
+          </body>
+        `;
+console.log(docOne)
+
+
+
+2.Numbers
+
+-all numbers size is 64 bit aka double.
+
+let salary = 10000;
+console.log(`Salary ${salary}`);
+let totalSalary = salary * 100
+console.log(`Total salary ${salary}`);
+
+
+2.boolean
+
+- 1 bit value eiether 0 or 1;
+- offers built in literal value called true/false
+
+
+let isEnabled = true
+let isValid = false
+console.log(`IsEnabled ${isEnabled} IsValid ${isValid}`)
+
+3.undefined:
+ -undefined; if variable declared but not initalized with any valid literals
+
+let cost;
+console.log(`cost ${cost}`);
+//undefined 
+
+let price;  //no value
+console.log(`Price ${price}`)
+
+4.NaN -  Not a Number
+
+ -NaN - not a number; it is numerical error code.during numerical computation, 
+
+js engine
+ -may throw error - NaN ; 
+ -NaN is not valid value, it is error , need to be fixed if you get.
+
+when you will get NaN.
+1.if you do compuation against undefined variables.
+
+//numerical computation against undefined
+let qty; //undefined
+let price = 100;
+let totalPrice = qty * price;
+console.log(`Totatl Price is ${totalPrice}`)
+
+
+Infinity:
+.........
+
+-div/0 -
+
+let x =100;
+let y =0
+let c = x/y;
+console.log(`C ${c}`)
+
+.................................................................................
+
+let vs const:
+
+//let and const both are same
+//consts are like final keyword
+
+let a = 10
+console.log(`A is ${a}`)
+a = 20
+console.log(`A is ${a}`)
+
+const b=90
+console.log(`B is ${b}`)
+b=80
+console.log(`B is ${b}`)
+.....................................................................................
+				Advanced boolean
+....................................................................................
+
+What can be true or false?
+
+decision making : if..else ,tenary operator
+
+in javascript is every thing is true execept the following values 
+
+Falsy values
+
+ * 
+ *  1.boolean false
+ *  2.Empty string "" ,''
+ *  3.0
+ *  4.undefined
+ *  5.NaN
+ *  6.null
+ */
+
+//which is true or false 
+
+let isEnabled = true
+
+if (isEnabled) {
+    console.log('ok')
+} else {
+    console.log('not ok')
+}
+//o is false
+let start = 0;
+
+if (start) {
+    console.log('ok')
+} else {
+    console.log('not ok')
+}
+
+//undefined
+let price;
+
+if (price) {
+    console.log('ok')
+} else {
+    console.log('not ok')
+}
+
+//Nan
+let total =  price *10;
+
+if (total) {
+    console.log('ok')
+} else {
+    console.log('not ok')
+}
+...................................................................................
+
+//tenary operator is replacment for if else 
+
+let isValid = true;
+
+let res = isValid ? "Valid" : "Invalid"
+
+console.log(res)
+
+let start = 0;
+let res1 = start ? 'Started' : "Not Started"
+
+.....
+
+==  and ===
+// == and ===
+
+/**
+ * == compare values
+ * === compare value + type => recommended
+ */
+
+let a = "10";
+let b = 10;
+
+let res = a === b ? "Equal" : "Not Equal"
+console.log(res)
+.....................................................................................
+...............................................................................
+				functions
+
+
+function is unit of execution, having all biz logic.
+
+function declaration and invocation
+function args and parameters
+
+//function  declaration
+function sayHello() {
+    //function body 
+    console.log('Hello,function')
+}
+//function invocation
+sayHello()
+
+...
+
+default args:
+............
+//function parameters and args:
+
+//name is arg 
+function sayHello(name) {
+    console.log(`Hello ${name}`)
+}
+//"Subramanian" -parameter
+sayHello("Subramanian")
+
+//java script allows without passing parameter : if you dont , it would initalize to undefined
+sayHello()
+
+//es 6 default args : if args are undfined , we can assign default value 
+
+function add(a = 0, b = 0) {
+    console.log(`a ${a} b ${b}`)
+    let c = a + b
+    console.log(`The result is ${c}`)
+}
+add(10, 10)
+add()
+...
+
+ 
+//return value from the function:
+
+function add(a = 0, b = 0) {
+    return a + b //expression
+}
+console.log(`The Add is ${add(10, 10)}`)
+
+function login(userName = '') {
+    return; //undefined
+}
+console.log(login())
+.....................................................................................
+			   functional Programming concepts
+
+
+1.function is value(literal) like other literals
+ let a =10;
+ here a is variable
+ here 10 is value(literal)
+ here let is keyword
+
+functions are initalized into variables,that variable is going to be used to invoke that function.
+
+//function is literal.
+
+//function is literal.
+
+function sayHello() {
+    return 'Hello'
+}
+console.log(sayHello());
+//literal syntax:
+let hello = sayHello;
+console.log(hello())
+
+//declaration and initalization in the same  place ...
+
+//if function without name, is called "anonmous function"
+let hai = function () {
+    return 'Hai'
+}
+console.log(hai())
+
+//with parameters
+let add = function (a = 0, b = 0) {
+    return a + b
+}
+console.log(`Add ${add(12,34)}`)
+
+....................................................................................
+			   functional Programming concepts
+
+
+1.function is value(literal) like other literals
+ let a =10;
+ here a is variable
+ here 10 is value(literal)
+ here let is keyword
+
+functions are initalized into variables,that variable is going to be used to invoke that function.
+
+//function is literal.
+
+//function is literal.
+
+function sayHello() {
+    return 'Hello'
+}
+console.log(sayHello());
+//literal syntax:
+let hello = sayHello;
+console.log(hello())
+
+//declaration and initalization in the same  place ...
+
+//if function without name, is called "anonmous function"
+let hai = function () {
+    return 'Hai'
+}
+console.log(hai())
+
+//with parameters
+let add = function (a = 0, b = 0) {
+    return a + b
+}
+console.log(`Add ${add(12,34)}`)
+....................................................................................
+				Arrow functions
+....................................................................................
+//arrow function
+
+//es 5 anonmous style function 
+let greet = function () {
+    console.log('greet')
+}
+//es 6 arrow functions 
+greet()
+greet = () => {
+    console.log('greet')
+}
+greet()
+//////////////////////////////////////////////////////////////////////////////////
+
+let add = function (a = 0, b = 0) {
+    return a + b
+}
+console.log(add(10, 10))
+
+add = (a = 0, b = 0) => {
+    return a + b
+}
+console.log(add(10, 10))
+
+//if function is having only return statement : remove {} and return statement
+add = (a = 0, b = 0) => a + b
+console.log(add(10, 10))
+
+//single parameter without default value ,we can remove ()
+
+let stock = value => value
+console.log(stock(10))
+
+..................................................................................
+			   Higher order functions
+...................................................................................
+
+Higher order functions are function which are passed as parameter to other functions
+and also we can return function from other functions.
+
+1.Function as parameter.
+
+
+function add(a, b) {
+    console.log(`${a} ${b} ${a + b}`)
+}
+add(10, 10) //values are passed directly
+let x = 10
+let y = 20
+add(x, y) //values are passed with help of variables
+
+
+//higher order functions
+//function as parameter .
+
+function sayHello(hello) {
+    //invoke  function 
+    hello()
+}
+
+//function with variables
+let hello = function () {
+    console.log('Hello')
+}
+sayHello(hello)
+sayHello(function () {
+    console.log('hello')
+})
+/////////////////////////////////////////////////////////////////////////////////////
+
+function connect(callback) {
+    callback('response')
+}
+connect(function (res) {
+    console.log(res)
+})
+///
+function auth(success, failure) {
+    //logic 
+    let isValid = false
+    if (isValid) {
+        success('login success')
+    } else {
+        failure('login failed')
+    }
+}
+auth(function (res) {
+    console.log(res)
+}, function (err) {
+    console.log(err)
+})
+....................................................................................
+			Arrow functions and hof
+
+
+const connect = callback => callback('response')
+connect(res => console.log(res))
+///
+const auth = (success, failure) => {
+    //logic 
+    let isValid = false
+    if (isValid) {
+        success('login success')
+    } else {
+        failure('login failed')
+    }
+}
+auth(res => console.log(res), err => console.log(err))
+.....................................................................................
+			  Object creations
+.....................................................................................
+Javascript is not object oriented language, rather object based language.
+
+
+
+How to create objects in js?
+
+There are two patterns
+
+1.constructors
+    -using functions - es 5 style
+    -using class -  es 6 style
+2.literal
+  
+
+
+//create object : using functions:
+
+//es 5 style class declaration : using functions 
+
+function Employee() {
+    //instance variables
+    this.id = 1
+    this.name = 'Subramanian'
+    //instance methods
+    this.calculateSalary = function () {
+        return 1000;
+    }
+}
+//create object 
+//emp is just reference variable
+//new is operator
+//Employee() is constructor call 
+let emp = new Employee()
+console.log(`id ${emp.id} Name ${emp.name} Salary ${emp.calculateSalary()}`)
+
+
+//
+state initalization: via constructors
+//constructor parameters
+function Employee(id = 1, name = 'Subramanain') {
+    //instance variables
+    this.id = id;
+    this.name = name;
+    //instance methods
+    this.calculateSalary = function () {
+        return 1000;
+    }
+}
+//create object 
+//emp is just reference variable
+//new is operator
+//Employee() is constructor call 
+let emp = new Employee()
+console.log(`id ${emp.id} Name ${emp.name} Salary ${emp.calculateSalary()}`)
+
+emp = new Employee(23,'Karthik')
+console.log(`id ${emp.id} Name ${emp.name} Salary ${emp.calculateSalary()}`)
+..................................................................................
+			 es 6 classes
+.................................................................................
+class Employee {
+    constructor(id = 1, name = 'Subramanain') {
+        //instance variables
+        this.id = id;
+        this.name = name;
+    }
+    //instance methods
+    calculateSalary() {
+        return 1000;
+    }
+}
+//create object 
+//emp is just reference variable
+//new is operator
+//Employee() is constructor call 
+let emp = new Employee()
+console.log(`id ${emp.id} Name ${emp.name} Salary ${emp.calculateSalary()}`)
+
+emp = new Employee(23, 'Karthik')
+console.log(`id ${emp.id} Name ${emp.name} Salary ${emp.calculateSalary()}`)
+.....................................................................................
+			    literal syntax:
+....................................................................................
+//literal 
+
+//profile is just variable
+const profile = {
+    //instance variables
+    id: 1,
+    name: 'Subramanian',
+    status: true
+}
+console.log(`Id ${profile.id} ${profile.name} ${profile.status}`)
+
+//most of the time , literal objects will not have methods, but some uses cases we have.
+
+let userService = {
+    //methods
+    //syntax:1
+    save: function () {
+        return 'save method'
+    },
+    //syntax 2: arrow 
+    insert: () => 'save method',
+    //syntax 3: es 6 class method style 
+    findAll() {
+        return 'findAll'
+    }
+}
+
+console.log(userService.save())
+console.log(userService.insert())
+console.log(userService.findAll())
+
+.....................................................................................
+//how to pass object as parameter
+
+function createService(serviceSchema) {
+    console.log(serviceSchema.name)
+    console.log(serviceSchema.version)
+    console.log(serviceSchema.actions.findAll())
+
+}
+createService({
+    name: 'ProductService',
+    version: '1.0.0',
+    actions: {
+        findAll() {
+            return 'products'
+        }
+    }
+})
+
+//how to return object from the function 
+function getStock() {
+    return {
+        id: 2,
+        name: 'google',
+        price: 1000
+    }
+}
+console.log(getStock())
+.....................................................................................
+				Object destrucing
+//object destructuring with object as output.
+
+let getStock = () => {
+    return {
+        id: 1,
+        symbol: 'Google',
+        price: 1000,
+        qty: 10
+    }
+}
+console.log(getStock())
+
+//object with args
+getStock = (id = 0, symbol = 'google', price = 1000, qty = 10) => {
+    return {
+        id: id,
+        symbol: symbol,
+        price: price,
+        qty: qty
+    }
+}
+console.log(getStock(1, 'microsoft', 1000, 1000))
+
+// destructuring with input parameters
+getStock = (id = 0, symbol = 'google', price = 1000, qty = 10) => {
+    //objectKey:localvariable
+    //id:id
+    //if both are same,we can make it one: we can remove any one variable
+    return {
+        id,
+        symbol,
+        price,
+        qty
+    }
+}
+console.log(getStock(1, 'microsoft', 1000, 1000))
+
+getStock = (id = 0, symbol = 'google', price = 1000, qty = 10) => ({
+        id,
+        symbol,
+        price,
+        qty
+})
+
+console.log(getStock(1, 'microsoft', 1000, 1000))
+
+
+
+
+
+
