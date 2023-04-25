@@ -1,0 +1,1024 @@
+		Node.js Programming area
+
+1.Node REPL
+2.Node and js apis
+3.Node core apis
+4.Styles of writing async programming
+   ->Callback pattern
+   ->Promise Pattern
+   ->Promise with Async and await Pattern
+...................................................................................
+
+1.Node REPL - Read Evalulate Print loop
+
+Node REPL is used to run js programs interactive mode.
+
+Js programs are executed in two modes
+
+1.interactive mode - REPL mode
+2.script mode - by loading script on to the runtime
+
+
+>node
+node
+Welcome to Node.js v16.15.0.
+Type ".help" for more information.
+> a=10
+10
+> b=20
+20
+> c =a + b
+30
+> Math.random()
+0.33841885209828515
+> "Hello".toUpperCase()
+'HELLO'
+
+script mode
+
+>node src/index.js
+.................................................................................
+			 How to write non blocking apps
+...................................................................................
+
+Fundamental Requirement:
+........................
+
+1.OS should support non blocking apis like select,poll,epoll/iocp/kqueue
+2.Program languages/platforms also should provide high level apis to map os low level apis
+
+In order to write non blocking apps in js(node), we have different patterns(styles)
+
+Nonblocking Applications Developement style:
+............................................
+
+1.callbacks
+2.Promises
+3.Async await
+4.reactive programming-rxjs 
+
+
+
+1.callbacks:
+  Callback is listener function which gets registered during compile time
+  and exexcuted during runtime when ever the event is emitted.
+
+Req for async programming:
+ 
+1.You need high level non blocking api - provided by node.js 
+2.listener api which is called "function as parameter/hof" 
+
+HOF functions are becoming listeners/callbacks which are called when ever event is emitted.
+
+
+NonBlocking apis:
+1.timer
+   -setTimeout
+   -setInterval
+2.io
+   web
+   fs
+   socket
+ etc...
+3.process api
+  nextTick
+...................................................................................
+			How to implement non blocking using timers
+...................................................................................
+//using timer
+
+function blockMe(message) {
+    console.log(message)
+}
+
+function delay(callback) {
+    //node js high level non blocking api 
+    setTimeout(callback, 5000)
+}
+///////////////////////////////////////////////////////////////////
+
+blockMe('start')
+delay(function () {
+    console.log('i am delayed')
+})
+blockMe('end')
+
+.................................
+
+callbacks with arrow:
+
+const blockMe = (message) => console.log(message)
+
+const sayHello = hello => setTimeout(hello, 5000, 'Hello!!')
+
+blockMe('start')
+sayHello(message => console.log(message))
+blockMe('end')
+....................................................................................
+complex callbacks with biz logic:
+.................................
+
+const login = (userName, password, success, failure) => {
+    if (userName === 'admin' && password === 'admin') {
+        setTimeout(success, 1000, 'Login Success')
+    } else {
+        setTimeout(failure, 1000, 'Login Failed')
+    }
+}
+login('admin', 'admin', status => console.log(status), err => console.log(err))
+...................................................................................
+..................................................................................
+			Nested Callbacks
+.................................................................................
+
+The output of one callback will be input into another callback -  async composition.
+
+//callback nesting: the output of one callback will be input to another callback
+
+//getUser ---> login ---> showdashboard
+
+//callback nesting - async composition
+//resolve = success reject=failure
+
+const getUser = (resolve, reject) => {
+    console.log('getUser is called')
+    let user = {
+        name: 'admin'
+    }
+    //user=undefined
+    let error = {
+        message: 'User not Found'
+    }
+    if (user) {
+        setTimeout(resolve, 100, user)
+    } else {
+        setTimeout(reject, 100, error)
+    }
+}
+
+const login = (user, resolve, reject) => {
+    console.log('login is called')
+    if (user.name === 'admin') {
+        setTimeout(resolve, 100, 'Login Success')
+    } else {
+        setTimeout(reject, 100, 'Login Failed')
+    }
+}
+const dashboard = (status, resolve, reject) => {
+    if (status === 'Login Success') {
+        setTimeout(resolve, 100, 'Admin Page')
+    } else {
+        setTimeout(reject, 100, 'Guest Page')
+    }
+}
+//calling
+getUser(user => {
+    //call login
+    login(user, status => {
+        //call dashboard
+        dashboard(status, adminPage => console.log(adminPage), err => console.log(err))
+    }, err => console.log(err))
+}, err => console.log(err))
+....................................................................................
+				Callback Hell
+....................................................................................
+
+getUser(user => {
+    //call login
+    login(user, status => {
+        //call dashboard
+        dashboard(status, adminPage => console.log(adminPage), err => console.log(err))
+    }, err => console.log(err))
+}, err => console.log(err))
+
+Questions:
+
+1.Whether this code is able to understand quickly
+2.Whether this code is able to debug
+3.Whehter this code is scalable?
+4.whether this code is maintaiable?
+
+No
+ "Callback Hell"
+
+fs.readdir(source, function (err, files) {
+  if (err) {
+    console.log('Error finding files: ' + err)
+  } else {
+    files.forEach(function (filename, fileIndex) {
+      console.log(filename)
+      gm(source + filename).size(function (err, values) {
+        if (err) {
+          console.log('Error identifying file size: ' + err)
+        } else {
+          console.log(filename + ' : ' + values)
+          aspect = (values.width / values.height)
+          widths.forEach(function (width, widthIndex) {
+            height = Math.round(width / aspect)
+            console.log('resizing ' + filename + 'to ' + height + 'x' + height)
+            this.resize(width, height).write(dest + 'w' + width + '_' + filename, function(err) {
+              if (err) console.log('Error writing file: ' + err)
+            })
+          }.bind(this))
+        }
+      })
+    })
+  }
+})
+
+Callback Hell:
+
+ -It is not bug or error in code
+ -It is way of writing callback based program
+ -Callback based non blocking programming hard to understand,maintain,debug,scale Which   called as "Callback Hell".
+
+
+
+How to write better async/non blocking code without callbacks?
+
+-Generally without callbacks not possible to write async/non blocking code.
+-Rather we can abstract complexity of writting callbacks.
+
+
+
+In 2005, JQUERY team started with working complex callback patterns, they found callback hell problem.
+
+They proposed a  Design pattern to write better callback programming(Async) programming.
+
+  "Promise".
+
+Promise is design pattern which hides complexity of callback patterns
+
+
+Since Promise is design pattern, many people have implemented Promise design pattern.
+
+1.JQuery -first promise implementation
+2.many libs and frameworks
+...........................................................................................
+
+In order to standarize , ECMA committe decided to include Promise Design pattern at language level .(ES 6)
+2012 E6 Committe introduced promise design pattern  as  "Promise" Object  in javascript.
+.....................................................................................
+			  Promise Implementation
+.....................................................................................
+
+Features of Promise Object:
+1.Promise by deafult is Async. Which implements timer api with 0 ms .
+2.Promise can be used with any async callback based  implementations.
+
+
+Objective:
+
+ To remove callbacks in async/non blocking code. write cleaner async programming.
+ To remove complex callback chaining code.
+
+
+Difference between callbacks and promises:
+
+Essentially, a promise is a returned object to which you attach callbacks, instead of passing callbacks into a function.
+
+....................................................................................
+
+		Promise Implemenation: Object Object creations
+...................................................................................
+
+1. Create Promise Object from Promise contructor
+      new Promise()
+2. Create Promise object from factory apis 
+      Promise.resolve() / Promise.reject()
+
+Promise object methods:
+
+1.then - success
+2.catch - errors
+3.finally - clean up
+
+factory api to create Promise object
+4.resolve
+5.reject
+.......................................
+6.all
+7.race
+
+1.Promise factory api
+   -success - resolve
+   -failure - reject
+
+
+//basic promise implementation:
+//In promises , you dont need to pass function as parameter
+
+Promise with Success and also ensure that Promise is async.
+
+
+function blockMe(message) {
+    console.log(message)
+}
+function getMessage() {
+    //return Promise with success
+    return Promise.resolve('Hello')
+}
+
+blockMe('start')
+getMessage().then(message => console.log(message))
+blockMe('end')
+
+Promise with Error:
+
+function blockMe(message) {
+    console.log(message)
+}
+function getError() {
+    //return Promise with success
+    return Promise.reject('something went wrong')
+}
+
+blockMe('start')
+getError().catch(err => console.log(err))
+blockMe('end')
+
+Promise with either success or failure:
+.......................................
+
+function blockMe(message) {
+    console.log(message)
+}
+function login(name) {
+    if (name === 'admin') {
+        return Promise.resolve('Login success')
+    } else {
+        return Promise.reject('Login Failed')
+    }
+}
+
+blockMe('start')
+login('admin')
+    .then(status => console.log(status))
+    .catch(err => console.log(err))
+
+login('foo')
+    .then(status => console.log(status))
+    .catch(err => console.log(err))
+blockMe('end')
+
+
+2.Promise Constructor Api
+.........................
+
+i want to return users after 1000ms
+if i want to wrap any existing callback based program into promise based 
+
+ "You have to use Promise Constructor Pattern"
+
+
+
+function blockMe(message) {
+    console.log(message)
+}
+function login(name) {
+    return new Promise((resolve, reject) => {
+        if (name === 'admin') {
+            setTimeout(resolve, 1000, 'login success')
+        } else {
+            setTimeout(reject, 1000, 'Login Failed')
+        }
+    })
+}
+
+blockMe('start')
+login('admin')
+    .then(status => console.log(status))
+    .catch(err => console.log(err))
+login('foo')
+    .then(status => console.log(status))
+    .catch(err => console.log(err))
+blockMe('end')
+...................................................................................
+			 Solving CallBack Hell using Promises
+.................................................................................
+//promise chaning --sovling callback hell
+
+const getUser = () => {
+    console.log('getUser is called')
+    let user = {
+        name: 'admin'
+    }
+    //user=undefined
+    let error = {
+        message: 'User not Found'
+    }
+    return new Promise((resolve, reject) => {
+        if (user) {
+            setTimeout(resolve, 100, user)
+        } else {
+            setTimeout(reject, 100, error)
+        }
+    })
+}
+
+const login = user => {
+    console.log('login is called')
+    return new Promise((resolve, reject) => {
+        if (user.name === 'admin') {
+            setTimeout(resolve, 100, 'Login Success')
+        } else {
+            setTimeout(reject, 100, 'Login Failed')
+        }
+    })
+}
+const dashboard = status => {
+    return new Promise((resolve, reject) => {
+        if (status === 'Login Success') {
+            setTimeout(resolve, 100, 'Admin Page')
+        } else {
+            setTimeout(reject, 100, 'Guest Page')
+        }
+    })
+}
+//callback based 
+// getUser(user => {
+//     //call login
+//     login(user, status => {
+//         //call dashboard
+//         dashboard(status, adminPage => console.log(adminPage), err => console.log(err))
+//     }, err => console.log(err))
+// }, err => console.log(err))
+
+// getUser()
+//     .then(user => {
+//         return login(user)
+//     })
+//     .then(status => {
+//         return dashboard(status)
+//     })
+//     .then(page => {
+//         console.log(page)
+//     })
+//     .catch(err => console.log(err))
+
+getUser()
+    .then(user => login(user))
+    .then(status => dashboard(status))
+    .then(page => console.log(page))
+    .catch(err => console.log(err))
+
+....................................................................................
+				Promise Hell
+..................................................................................
+Multi thens makes code more complex to read,maintain,debug-Promise hell.
+
+How to solve the Promise Hell?
+
+Using async await keywords...
+
+Async ...await keywords:
+
+1.async keyword is used infront of function declaration- async function
+2.async functions by default return promise with success result always
+2.async functions can wrap expclit apis with promise.
+
+//async function 
+async function getValue() {
+    return 10 // Promise.resolve(10)
+}
+function main() {
+    console.log(getValue())
+}
+main()
+.....................................................................................
+
+//promise chaning --sovling callback hell
+
+const getUser = () => {
+    console.log('getUser is called')
+    let user = {
+        name: 'admin'
+    }
+    //user = undefined
+    let error = {
+        message: 'User not Found'
+    }
+    return new Promise((resolve, reject) => {
+        if (user) {
+            setTimeout(resolve, 100, user)
+        } else {
+            setTimeout(reject, 100, error)
+        }
+    })
+}
+
+const login = user => {
+    console.log('login is called')
+    return new Promise((resolve, reject) => {
+        if (user.name === 'admin') {
+            setTimeout(resolve, 100, 'Login Success')
+        } else {
+            setTimeout(reject, 100, 'Login Failed')
+        }
+    })
+}
+const dashboard = status => {
+    return new Promise((resolve, reject) => {
+        if (status === 'Login Success') {
+            setTimeout(resolve, 100, 'Admin Page')
+        } else {
+            setTimeout(reject, 100, 'Guest Page')
+        }
+    })
+}
+
+async function main() {
+    // getUser()
+    //     .then(user => login(user))
+    //     .then(status => dashboard(status))
+    //     .then(page => console.log(page))
+    //     .catch(err => console.log(err))
+
+    try {
+        const user = await getUser()
+        const status = await login(user)
+        const page = await dashboard(status)
+        console.log(user, status, page)
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+main()
+...................................................................................
+				Modules Pattern
+...................................................................................
+
+
+In java Modularity , is presented via "Packages"
+
+Package organize the code  logically.
+
+Customer.java
+
+package com.ibm.cms
+
+public class Customer{}
+
+Java organizes code folders and files Physically.
+
+d:/javaapps/src/
+    com/ibm/cms/Customer.java
+
+What about javascript Modularity?
+
+ Javascript is file based modularity physically
+ but logically there is no such modularity at language level.
+
+collection of variable declarations and function.
+
+Once js started growing in large scale, dev struck to organize code.
+
+2000, Smart developers started thinking about how to modualrize js code.
+
+Module design patterns came.
+
+1.Namespace design pattern : 2000 : jquery
+2.AMD -Async Module Defintion : dojo
+---------------------------------------------------------
+3.CJS - Common JS =  namespace + amd:2005 on wards
+4.ES 6 Module design pattern:2012-2015  = amd + cjs
+------------------------------------------------------------
+5.System :2007 = AMD = CJS + ES 6
+6.UMD :2008 = NAMESPACE + AMD + CJS = ES 6
+....................................................................................
+
+....................................................................................
+				Commonjs-CJS
+.....................................................................................
+
+How to share code? How to import code?
+
+ Code:
+  Could be variables,functions,classes.
+  Variables can have any literal string,numbers,boolean,objects,functions...
+
+src
+  |
+  subfolders
+|
+index.js
+
+Sharing code :
+
+Keywords
+exports
+module.exports
+
+Import code:
+require('fileName')
+require('folderName/fileName')
+
+exports:
+ Used to share more code from the single file.
+ exports packs the entire code into one single js object and returns that object
+
+How to share code? How to import code?
+
+ Code:
+  Could be variables,functions,classes.
+  Variables can have any literal string,numbers,boolean,objects,functions...
+
+src
+  |
+  subfolders
+|
+index.js
+
+Sharing code :
+
+Keywords
+exports
+module.exports
+
+Imporing code:
+require('fileName')
+require('folderName/fileName')
+
+exports:
+ Used to share more code from the single file.
+ exports packs the entire code into one single js object and returns that object
+
+//pack the code 
+exports.firstName = 'Subramanian'
+exports.lastName = 'Murugan'
+exports.salary = 1000
+exports.status = true
+exports.address = {
+    city: 'Coimbatore'
+}
+exports.skills = ['Java','JavaScript','Node.js']
+
+
+require:
+  It is a function which returns what ever we exported from the file.
+
+const obj= require('fileName')
+
+
+
+src/util.myutil.js
+
+//pack the code 
+exports.firstName = 'Subramanian'
+exports.lastName = 'Murugan'
+exports.salary = 1000
+exports.status = true
+exports.address = {
+    city: 'Coimbatore'
+}
+exports.skills = ['Java', 'JavaScript', 'Node.js']
+exports.saySomething = () => "something"
+
+src/index.js
+//access the code from the myutil.js 
+const res = require('./util/myutil')
+console.log(res)
+
+console.log(`${res.firstName} ${res.lastName} ${res.address.city} ${res.salary}`)
+console.log(`${res.skills} ${res.status} ${res.saySomething()}`)
+
+node src/index.js
+{
+  firstName: 'Subramanian',
+  lastName: 'Murugan',
+  salary: 1000,
+  status: true,
+  address: { city: 'Coimbatore' },
+  skills: [ 'Java', 'JavaScript', 'Node.js' ],
+  saySomething: [Function (anonymous)]
+}
+Subramanian Murugan Coimbatore 1000
+Java,JavaScript,Node.js true something
+
+....................................................................................
+				module.exports
+....................................................................................
+
+Export only one item from the file.
+
+eg"
+ if you want to share  "Class"
+ if you want to share "array"
+if you want to share "Object"
+....................................................................................
+				module.exports
+....................................................................................
+
+Export only one item from the file.
+
+eg"
+ if you want to share  "Class"
+ if you want to share "array"
+
+
+src/services/todo.service.js
+
+class TodoService {
+    constructor() {
+
+    }
+    //biz apis
+    save() {
+        return 'save'
+    }
+    findAll() {
+        return 'findAll'
+    }
+    find() {
+        return 'find'
+    }
+    remove() {
+        return 'remove'
+    }
+}
+// module.exports = TodoService
+
+//return object 
+module.exports = new TodoService()
+
+
+src/index.js
+// const TodoService = require('./services/todo.service')
+const todoService = require('./services/todo.service')
+
+// let service = new TodoService()
+
+// console.log(service.save())
+// console.log(service.findAll())
+
+console.log(todoService.save())
+console.log(todoService.findAll())
+....................................................................................
+			ES 6 Module pattern
+....................................................................................
+
+How to share code and how to import code?
+
+export,export default == exports and module.exports
+
+import == require()
+
+
+src/util/mylib.js
+
+//pack the code 
+//exports.firstName = 'Subramanian'
+export const firstName ='Subramanian'
+export const lastName = 'Murugan'
+export const salary = 1000
+export const status = true
+export const address = {
+    city: 'Coimbatore'
+}
+export const skills = ['Java', 'JavaScript', 'Node.js']
+export const saySomething = () => "something"
+
+src/index.js
+import { firstName,lastName,salary } from "./util/mylib";
+
+console.log(firstName,lastName,salary)
+
+node src/index.js
+(node:17360) Warning: To load an ES module, set "type": "module" in the package.json or use the .mjs extension.
+(Use `node --trace-warnings ...` to show where the warning was created)
+E:\session\IBM\2022\sep\nodejsmicroservice\moduleapps\src\index.js:1
+import { firstName,lastName,salary } from "./util/mylib";
+^^^^^^
+
+SyntaxError: Cannot use import statement outside a module
+    at Object.compileFunction (node:vm:352:18)
+    at wrapSafe (node:internal/modules/cjs/loader:1033:15)
+    at Module._compile (node:internal/modules/cjs/loader:1069:27)
+    at Object.Module._extensions..js (node:internal/modules/cjs/loader:1159:10)
+    at Module.load (node:internal/modules/cjs/loader:981:32)
+    at Function.Module._load (node:internal/modules/cjs/loader:822:12)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:77:12)
+    at node:internal/main/run_main_module:17:47
+
+Node.js does not support es6 modules directly....
+
+You have to create package.json file 
+
+E:\session\IBM\2022\sep\nodejsmicroservice\moduleapps>npm init --y
+Wrote to E:\session\IBM\2022\sep\nodejsmicroservice\moduleapps\package.json:
+
+{
+  "name": "moduleapps",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
+.................................................................................
+
+package.json
+{
+  "name": "moduleapps",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
+
+
+while importing file "fileName.js" must be given.
+
+import { firstName,lastName,salary } from "./util/mylib.js";
+
+console.log(firstName,lastName,salary)
+.....................................................................................
+			 export default
+
+To export only one thing at a time.
+
+Usefull for class,functions,mockdata exporting....
+
+
+src/services/customer.service.js
+
+// export default class CustomerService {
+//     constructor() {
+
+//     }
+//     findAll() {
+//         return 'customers'
+//     }
+// }
+
+class CustomerService {
+    constructor() {
+
+    }
+    findAll() {
+        return 'customers'
+    }
+}
+
+export default CustomerService;
+
+
+src/index.js
+
+import { firstName, lastName, salary } from "./util/mylib.js";
+import CustomerService from './services/customer.service.js'
+
+console.log(firstName, lastName, salary)
+let custService = new CustomerService()
+console.log(custService.findAll())
+
+.....................***********************......................................
+				Node Platform apis
+.....................................................................................
+Node Modules - common js:
+
+Types of modules:
+
+1.Custom module
+  built by us
+2.built in modules
+   provided by node.js  
+3.provided by third party/community
+  libs,frameworks
+
+
+Built in Modules:
+.................
+File System io
+Networking
+os
+etc...
+https://nodejs.org/dist/latest-v16.x/docs/api/
+....................................................................................
+			Networking Module-HTTP module
+...................................................................................
+
+How to build non blocking web server,app,deploy?
+
+
+Node.js is reference implementation of "c10K" Problem.
+Node.js has removed the concept of "Request Per Thread Model"
+Node.js Handls more concurrent requests using "single Event Loop thread".
+
+Node.js Provides a module called "http".
+
+Node Js Provides HTTP Server,HttpApplication , is nonblocking.
+
+Unlike traditional webservers,node uses single event loop thread to handle concurrent requests.
+
+Http Module:
+The HTTP interfaces in Node.js are designed to support many features of the protocol which have been traditionally difficult to use. In particular, large, possibly chunk-encoded, messages. The interface is careful to never buffer entire requests or responses, so the user is able to stream data.
+
+HTTP modules objects:
+
+1.Server
+  Server object is used to implement http servers/web containers
+2.ServerResponse
+  Object is used to send data 
+3.ClientRequest
+   Request object is used to handle http client requests
+4.IncommingMessage
+   Represents message payloads.
+
+
+//create webserver and app and deploy
+const http = require('node:http')
+
+
+//create server
+const server = http.createServer((req, res) => {
+    //read request and send response
+    res.end('Hello Node')
+})
+
+//start server
+server.listen(3000, () => {
+    console.log('Node HTTP Webserver is ready to accept Connection')
+})
+....................................................................................
+			How to send data in json
+
+//create webserver and app and deploy
+const http = require('node:http')
+
+
+//create server
+const server = http.createServer((req, res) => {
+    res.writeHead(200, {
+        'Content-Type': 'application/json',
+    })
+    const data = [{ id: 1, name: 'Subramanian' }]
+    res.end(JSON.stringify(data)) //write and close the connection
+})
+
+//start server
+server.listen(3000, () => {
+    console.log('Node HTTP Webserver is ready to accept Connection')
+})
+
+
+
+..................................................................................
+		 How to send Response as json
+
+
+=>async data fetch - callbacks,promise with then, promise with async...await.
+=>modularzation
+
+src/services/user.service.js
+
+class UserService {
+    constructor() {
+
+    }
+    //Promise
+    findAll() {
+        const data = JSON.stringify([{ id: 1, name: 'Subramanian' }])
+        return new Promise((resolve, reject) => {
+            setTimeout(resolve, 3000, data)
+        })
+    }
+}
+module.exports = new UserService()
+
+
+src/index.js
+//create webserver and app and deploy
+const http = require('node:http')
+const { findAll } = require('./services/user.service')
+//create server
+const server = http.createServer(async (req, res) => {
+    res.writeHead(200, {
+        'Content-Type': 'application/json',
+    })
+    try {
+        const users = await findAll()
+        res.end(users)
+    }
+    catch (err) {
+        res.end({ err })
+    }
+})
+
+//start server
+server.listen(3000, () => {
+    console.log('Node HTTP Webserver is ready to accept Connection')
+})
+
+

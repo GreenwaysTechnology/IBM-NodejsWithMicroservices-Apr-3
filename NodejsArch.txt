@@ -195,67 +195,6 @@ What type apps we can build using Node.js?
 
 You can build  concurrent non blocking network io apps...(web apps,microservices)
 
-....................................................................................
-
-Node.js platform has been built on 
-
-Google v8 : javascript engine  to execute js program
-libuv :  It is operating system non blocking abstractions
-
-Node.js is multi threaded? or single threaded?
-
-No!
-
-Node is mult threaded.
-
-Node provides two types of threads
-
-1.Event loop thread 
-   Node has only one event loop thread
- Event loop thread only handles non blocking IO - Socket IO(NETWORK IO)
-
-2.Worker pool threads
-  Node has dedcited more no of threads called "worker pool threads"
-  
- Use case:
-   To run non blocking "file io"
-   To Run blocking code and blocking io operations.
-...................................................................................
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

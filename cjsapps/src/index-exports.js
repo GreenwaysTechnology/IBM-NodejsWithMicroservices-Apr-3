@@ -1,0 +1,5 @@
+// const profile = require('./mylib')
+const { firstName, lastName, } = require('./mylib')
+// console.log(profile)
+// console.log(profile.firstName,profile.lastName)
+console.log(firstName, lastName)
