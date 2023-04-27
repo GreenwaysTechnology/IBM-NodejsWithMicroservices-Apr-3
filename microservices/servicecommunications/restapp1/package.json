@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "moleculer": "^0.14.29",
+    "moleculer-web": "^0.10.5"
+  },
+  "devDependencies": {
+    "moleculer-repl": "^0.7.3"
+  },
+  "name": "restapp1",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

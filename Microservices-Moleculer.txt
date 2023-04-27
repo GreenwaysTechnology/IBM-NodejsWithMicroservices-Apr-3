@@ -1904,8 +1904,377 @@ async function main() {
         console.log(err)
     }
 }
+main().
+.....................................................................................					.....................................................................................
+			  Event Driven Architecture
+.....................................................................................
+
+Service communication can happen
+
+Communication style
+
+Remote Procedure Invocation - method to method calls (sync or async)
+
+Messaging
+  Services talk without calling methods, but they communicate by passing messages 
+via message brokers
+
+events can be sent within single broker
+events can be distributed across the broker-Distributed event driven arch.
+
+
+Broker has a built-in event bus to support Event-driven architecture and to send events to local and remote services.
+....................................................................................
+
+Callee: Events Listeners
+
+   events: {
+        "order.created": {
+            handler(ctx) {
+                console.log("Payload:", ctx.params);
+                console.log("Sender:", ctx.nodeID);
+                console.log("Metadata:", ctx.meta);
+                console.log("The called event name:", ctx.eventName);
+            }
+        }
+    }
+
+caller: Event emission
+
+ broker/ctx.emit("order.created",{order:{id:1,name:'test'}}) - one to one
+ broker/ctx.broadcast("order.created",{order:{id:1,name:'test'}}) - one to many
+
+
+eg:
+app1
+cart.service.js
+const { ServiceBroker } = require('moleculer')
+
+const broker = new ServiceBroker({
+    transporter: "TCP"
+})
+
+broker.createService({
+    name: 'cart',
+    actions: {
+        checkout: {
+            //biz logic 
+            handler(ctx) {
+                const { id, name, qty } = ctx.params
+                //service to service communication via context object 
+                ctx.emit('order.created', { id: id, name: name, qty: qty })
+            }
+        }
+    }
+})
+
+
+async function main() {
+    try {
+        //start the broker 
+        await broker.start()
+        //use repl prompt
+        broker.repl()
+
+    } catch (err) {
+        console.log(err)
+    }
+}
 main()
 
+app2
+order.service.js
+const { ServiceBroker } = require('moleculer')
+
+const broker = new ServiceBroker({
+    transporter: "TCP"
+})
+
+broker.createService({
+    name: 'order',
+    events: {
+        "order.created": {
+            handler(ctx) {
+                //here you can persist data into database
+                const data = ctx.params
+                console.log(data)
+            }
+        }
+    }
+})
+
+
+async function main() {
+    try {
+        //start the broker 
+        await broker.start()
+        //use repl prompt
+        broker.repl()
+
+    } catch (err) {
+        console.log(err)
+    }
+}
+main()
+
+open two cmd
+
+1.for app1
+ol $ call cart.checkout --id 1 --name tv --qty 1
+>> Call 'cart.checkout' with params: { id: 1, name: 'tv', qty: 1 } with meta: { '$repl': true }
+>> Execution time:1ms
+>> Response:
+undefined
+mol $
+
+2.for app2
+mol $ { id: 1, name: 'tv', qty: 1 }
+mol $
+
+....................********************.............................................
+.....................................................................................
+			  Event Driven Architecture
+.....................................................................................
+
+Service communication can happen
+
+Communication style
+
+Remote Procedure Invocation - method to method calls (sync or async)
+
+Messaging
+  Services talk without calling methods, but they communicate by passing messages 
+via message brokers
+
+events can be sent within single broker
+events can be distributed across the broker-Distributed event driven arch.
+
+
+Broker has a built-in event bus to support Event-driven architecture and to send events to local and remote services.
+....................................................................................
+
+Callee: Events Listeners
+
+   events: {
+        "order.created": {
+            handler(ctx) {
+                console.log("Payload:", ctx.params);
+                console.log("Sender:", ctx.nodeID);
+                console.log("Metadata:", ctx.meta);
+                console.log("The called event name:", ctx.eventName);
+            }
+        }
+    }
+
+caller: Event emission
+
+ broker/ctx.emit("order.created",{order:{id:1,name:'test'}}) - one to one
+ broker/ctx.broadcast("order.created",{order:{id:1,name:'test'}}) - one to many
+
+
+eg:
+app1
+cart.service.js
+const { ServiceBroker } = require('moleculer')
+
+const broker = new ServiceBroker({
+    transporter: "TCP"
+})
+
+broker.createService({
+    name: 'cart',
+    actions: {
+        checkout: {
+            //biz logic 
+            handler(ctx) {
+                const { id, name, qty } = ctx.params
+                //service to service communication via context object 
+                ctx.emit('order.created', { id: id, name: name, qty: qty })
+            }
+        }
+    }
+})
+
+
+async function main() {
+    try {
+        //start the broker 
+        await broker.start()
+        //use repl prompt
+        broker.repl()
+
+    } catch (err) {
+        console.log(err)
+    }
+}
+main()
+
+app2
+order.service.js
+const { ServiceBroker } = require('moleculer')
+
+const broker = new ServiceBroker({
+    transporter: "TCP"
+})
+
+broker.createService({
+    name: 'order',
+    events: {
+        "order.created": {
+            handler(ctx) {
+                //here you can persist data into database
+                const data = ctx.params
+                console.log(data)
+            }
+        }
+    }
+})
+
+
+async function main() {
+    try {
+        //start the broker 
+        await broker.start()
+        //use repl prompt
+        broker.repl()
+
+    } catch (err) {
+        console.log(err)
+    }
+}
+main()
+
+open two cmd
+
+1.for app1
+ol $ call cart.checkout --id 1 --name tv --qty 1
+>> Call 'cart.checkout' with params: { id: 1, name: 'tv', qty: 1 } with meta: { '$repl': true }
+>> Execution time:1ms
+>> Response:
+undefined
+mol $
+
+2.for app2
+mol $ { id: 1, name: 'tv', qty: 1 }
+mol $
+
+....................********************.............................................
+
+			   REST API Design
+..................................................................................
+Moleculer Modules:
+..................
+
+Moleculer core lib provides only how to create backend services, service interactions.
+
+If i want to integrate lets say, rest api,databases, then we have to look at moleculer modules.
+
+1.Gateways
+2.Database and stores
+3.Metrics & Tracing 
+4.General 
+5.Security
+6.Tasks&Queues
+7.Jobs
+etc...
+
+1.GateWay : moleculer-web:Official API Gateway for Moleculer framework.
+
+npm install moleculer-web --save
+
+Features:
+
+support HTTP & HTTPS
+serve static files
+multiple routes
+support global, route, alias middlewares
+support file uploading
+alias names (with named parameters & REST shorthand)
+whitelist
+multiple body parsers (json, urlencoded)
+CORS headers
+ETags
+HTTP2
+Rate limiter
+before & after call hooks
+Buffer & Stream handling
+middleware mode (use as a middleware in ExpressJS Application)
+support authorization and auth
+
+
+GateWay is entry point to microservices apps
+
+How to create web server and start ?
+
+
+const { ServiceBroker } = require('moleculer')
+const ApiGateWay = require('moleculer-web')
+
+const broker = new ServiceBroker()
+
+//create ApiGateWayService
+broker.createService(ApiGateWay)
+
+async function main() {
+    await broker.start();
+}
+main();
+
+syntax -2
+const { ServiceBroker } = require('moleculer')
+const ApiGateWay = require('moleculer-web')
+
+const broker = new ServiceBroker()
+
+broker.createService({
+    name: 'ApiGateWay',
+    mixins: [ApiGateWay]
+})
+async function main() {
+    await broker.start();
+}
+main();
+...................................................................................
+			How to access back end services via GateWay
+...................................................................................
+const { ServiceBroker } = require('moleculer')
+const ApiGateWay = require('moleculer-web')
+
+const broker = new ServiceBroker()
+
+//Back end Service
+broker.createService({
+    name: 'hello',
+    actions: {
+        sayHello: {
+            handler(ctx) {
+                return 'Hello,REST Service'
+            }
+        }
+    }
+})
+
+
+//Gate Way Service
+broker.createService({
+    name: 'ApiGateWay',
+    mixins: [ApiGateWay]
+})
+async function main() {
+    await broker.start();
+}
+main();
+
+Test URLS:
+
+ call hello.sayHello 
+
+   http://localhost:3000/serviceName/actionMethodName
+   http://localhost:3000/hello/sayHello
+If you want to access , $node services
+   http://localhost:3000/~node/health
+
+....................................................................................
 
 
 
