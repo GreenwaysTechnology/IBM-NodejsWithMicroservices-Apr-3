@@ -1,12 +1,13 @@
 				MicroServices
 .....................................................................................
 How to build distributed apps?
+
 1.Monolithic
     Old way of building ,testing,deploying apps
 2.Microservices
 
 What is MicroService?
-Microservices - also known as the microservice architecture - is an architectural style that structures an application as a collection of services that are
+	Microservices - also known as the microservice architecture - is an architectural style that structures an application as a collection of services that are
 
 Highly maintainable and testable
 Loosely coupled
@@ -847,3 +848,482 @@ async function main() {
     }
 }
 main()
+.....................................................................................
+			Remote Service Communication
+				(Networking)
+
+If services(apps) are running different nodes with in same os or different os,
+they cant talk directly, where is network is involved.
+
+
+.............................................................................................
+			 How brokers can talk each other?
+
+Networking:
+..........
+in order to communicate with other nodes(servicebrokers) you need to configure a "Transporter"
+
+Transporter:
+ It is a bus which transports, calls,messages,events....
+
+Transporter connected via a centeral Message broker that provides a reliable way of exchanging messages among remote nodes.
+
+
+-Transporter is an important module if you are running services on multiple nodes. 
+
+-Transporter communicates with other nodes. 
+
+-It transfers events, calls requests and processes responses …etc. 
+
+-If a service runs on multiple instances on different nodes, the requests will be load-balanced among live nodes.
+
+
+Transports:
+............
+
+Built-in transporter
+TCP transporter - part of moleculer
+
+Third party Message Brokers
+NATS Transporter
+Redis Transporter
+MQTT Transporter
+AMQP Transporter
+Kafka Transporter
+NATS Streaming (STAN) Transporter
+Custom Transporter
+
+TCP transporter:
+
+This is a no-dependency, zero-configuration TCP transporter.
+It uses Gossip protocol to disseminate node statuses, service list and heartbeats.
+It contains an integrated UDP discovery feature to detect new and disconnected nodes on the network.
+If the UDP is prohibited on your network, use urls option. It is a list of remote endpoints (host/ip, port, nodeID). It can be a static list in your configuration or a file path which contains the list.
+
+
+Use case :How to use TCP transport as channel for service Communications.
+
+We need to configure Service Broker to enable transporter.
+
+ServiceBroker object creation:
+
+const broker = new ServiceBroker();
+ Here we have not passed any parameter to ServiceBroker Constructor, if you dont, the default parameters will be passed.
+
+Service Broker Parameters are called as "ServiceBroker Schema"
+
+We can override service Broker Schema to enable broker vide features.
+
+const { ServiceBroker } = require('moleculer')
+const broker = new ServiceBroker({
+    transporter:"TCP"
+});
+
+eg:
+App1
+const { ServiceBroker } = require('moleculer')
+
+const broker = new ServiceBroker({
+    transporter:"TCP"
+})
+
+broker.createService({
+    name: 'math',
+    actions: {
+        add: {
+            //param validation logic
+            params: {
+                a: "number",
+                b: "number"
+            },
+            //biz logic 
+            handler(ctx) {
+                const a = ctx.params.a
+                const b = ctx.params.b
+                //service to service communication via context object 
+                return ctx.call('adder.add', { a: a, b: b })
+            }
+        },
+        multiply: {
+            //param validation logic
+            params: {
+                a: "number",
+                b: "number"
+            },
+            //biz logic 
+            handler(ctx) {
+                const a = ctx.params.a
+                const b = ctx.params.b
+                //service to service communication via context object 
+                return ctx.call('multiplier.multiply', { a: a, b: b })
+            }
+        },
+    }
+})
+
+broker.createService({
+    name: 'adder',
+    actions: {
+        add: {
+            //param validation logic
+            params: {
+                a: "number",
+                b: "number"
+            },
+            //biz logic 
+            handler(ctx) {
+                const a = ctx.params.a
+                const b = ctx.params.b
+                return a + b
+            }
+        }
+    }
+})
+
+
+async function main() {
+    try {
+        //start the broker 
+        await broker.start()
+        //use repl prompt
+        broker.repl()
+
+    } catch (err) {
+        console.log(err)
+    }
+}
+main()
+
+App2
+const { ServiceBroker } = require('moleculer')
+
+const broker = new ServiceBroker({
+    transporter: "TCP"
+})
+
+broker.createService({
+    name: 'multiplier',
+    actions: {
+        multiply: {
+            //param validation logic
+            params: {
+                a: "number",
+                b: "number"
+            },
+            //biz logic 
+            handler(ctx) {
+                const a = ctx.params.a
+                const b = ctx.params.b
+                return a * b
+            }
+        }
+    }
+})
+
+
+
+async function main() {
+    try {
+        //start the broker 
+        await broker.start()
+        //use repl prompt
+        broker.repl()
+
+    } catch (err) {
+        console.log(err)
+    }
+}
+main()
+
+Testing
+
+Node1
+node services/math.service.js
+[2022-11-10T05:20:16.175Z] INFO  laptop-r2tggfdl-82848/BROKER: Moleculer v0.14.26 is starting...
+[2022-11-10T05:20:16.177Z] INFO  laptop-r2tggfdl-82848/BROKER: Namespace: <not defined>
+[2022-11-10T05:20:16.177Z] INFO  laptop-r2tggfdl-82848/BROKER: Node ID: laptop-r2tggfdl-82848
+[2022-11-10T05:20:16.179Z] INFO  laptop-r2tggfdl-82848/REGISTRY: Strategy: RoundRobinStrategy
+[2022-11-10T05:20:16.179Z] INFO  laptop-r2tggfdl-82848/REGISTRY: Discoverer: LocalDiscoverer
+[2022-11-10T05:20:16.186Z] INFO  laptop-r2tggfdl-82848/BROKER: Serializer: JSONSerializer
+[2022-11-10T05:20:16.198Z] INFO  laptop-r2tggfdl-82848/BROKER: Validator: FastestValidator
+[2022-11-10T05:20:16.200Z] INFO  laptop-r2tggfdl-82848/BROKER: Registered 13 middleware(s).
+[2022-11-10T05:20:16.202Z] INFO  laptop-r2tggfdl-82848/BROKER: Transporter: TcpTransporter
+[2022-11-10T05:20:16.215Z] INFO  laptop-r2tggfdl-82848/TRANSIT: Connecting to the transporter...
+[2022-11-10T05:20:16.218Z] INFO  laptop-r2tggfdl-82848/TRANSPORTER: TCP server is listening on port 51606
+[2022-11-10T05:20:16.229Z] INFO  laptop-r2tggfdl-82848/TRANSPORTER: UDP Multicast Server is listening on 172.21.112.1:4445. Membership: 239.0.0.0
+[2022-11-10T05:20:16.230Z] INFO  laptop-r2tggfdl-82848/TRANSPORTER: UDP Multicast Server is listening on 172.17.64.1:4445. Membership: 239.0.0.0
+[2022-11-10T05:20:16.231Z] INFO  laptop-r2tggfdl-82848/TRANSPORTER: UDP Multicast Server is listening on 192.168.1.8:4445. Membership: 239.0.0.0
+[2022-11-10T05:20:16.232Z] INFO  laptop-r2tggfdl-82848/TRANSPORTER: UDP Multicast Server is listening on 127.0.0.1:4445. Membership: 239.0.0.0
+[2022-11-10T05:20:16.233Z] INFO  laptop-r2tggfdl-82848/TRANSPORTER: UDP discovery started.
+[2022-11-10T05:20:16.233Z] INFO  laptop-r2tggfdl-82848/TRANSPORTER: TCP Transporter started.
+[2022-11-10T05:20:16.739Z] INFO  laptop-r2tggfdl-82848/REGISTRY: '$node' service is registered.
+[2022-11-10T05:20:16.741Z] INFO  laptop-r2tggfdl-82848/REGISTRY: 'math' service is registered.
+[2022-11-10T05:20:16.743Z] INFO  laptop-r2tggfdl-82848/REGISTRY: 'adder' service is registered.
+[2022-11-10T05:20:16.743Z] INFO  laptop-r2tggfdl-82848/$NODE: Service '$node' started.
+[2022-11-10T05:20:16.744Z] INFO  laptop-r2tggfdl-82848/MATH: Service 'math' started.
+[2022-11-10T05:20:16.745Z] INFO  laptop-r2tggfdl-82848/ADDER: Service 'adder' started.
+[2022-11-10T05:20:16.745Z] INFO  laptop-r2tggfdl-82848/BROKER: ✔ ServiceBroker with 3 service(s) started successfully in 530ms.
+mol $ [2022-11-10T05:20:52.460Z] INFO  laptop-r2tggfdl-82848/REGISTRY: Node 'laptop-r2tggfdl-53460' reconnected.
+mol $ nodes
+╔═══════════════════════════╤══════════╤═════════╤════════╤════════════════════╤══════════╤════════════════════════════╗
+║ Node ID                   │ Services │ Version │ Client │ IP                 │    State │ CPU                        ║
+╟───────────────────────────┼──────────┼─────────┼────────┼────────────────────┼──────────┼────────────────────────────╢
+║ laptop-r2tggfdl-53460     │ 2        │ 0.14.26 │ nodejs │ 172.21.112.1  (+2) │  ONLINE  │ [■■■.................] 14% ║
+║ laptop-r2tggfdl-82848 (*) │ 3        │ 0.14.26 │ nodejs │ 172.21.112.1  (+2) │  ONLINE  │ [■...................] 4%  ║
+╚═══════════════════════════╧══════════╧═════════╧════════╧════════════════════╧══════════╧════════════════════════════╝
+..............................
+
+Node 2:
+node services/multiplier.service.js
+[2022-11-10T05:20:49.701Z] INFO  laptop-r2tggfdl-53460/BROKER: Moleculer v0.14.26 is starting...
+[2022-11-10T05:20:49.702Z] INFO  laptop-r2tggfdl-53460/BROKER: Namespace: <not defined>
+[2022-11-10T05:20:49.703Z] INFO  laptop-r2tggfdl-53460/BROKER: Node ID: laptop-r2tggfdl-53460
+[2022-11-10T05:20:49.704Z] INFO  laptop-r2tggfdl-53460/REGISTRY: Strategy: RoundRobinStrategy
+[2022-11-10T05:20:49.705Z] INFO  laptop-r2tggfdl-53460/REGISTRY: Discoverer: LocalDiscoverer
+[2022-11-10T05:20:49.711Z] INFO  laptop-r2tggfdl-53460/BROKER: Serializer: JSONSerializer
+[2022-11-10T05:20:49.721Z] INFO  laptop-r2tggfdl-53460/BROKER: Validator: FastestValidator
+[2022-11-10T05:20:49.723Z] INFO  laptop-r2tggfdl-53460/BROKER: Registered 13 middleware(s).
+[2022-11-10T05:20:49.725Z] INFO  laptop-r2tggfdl-53460/BROKER: Transporter: TcpTransporter
+[2022-11-10T05:20:49.736Z] INFO  laptop-r2tggfdl-53460/TRANSIT: Connecting to the transporter...
+[2022-11-10T05:20:49.739Z] INFO  laptop-r2tggfdl-53460/TRANSPORTER: TCP server is listening on port 51607
+[2022-11-10T05:20:49.756Z] INFO  laptop-r2tggfdl-53460/TRANSPORTER: UDP Multicast Server is listening on 172.21.112.1:4445. Membership: 239.0.0.0
+[2022-11-10T05:20:49.757Z] INFO  laptop-r2tggfdl-53460/TRANSPORTER: UDP Multicast Server is listening on 172.17.64.1:4445. Membership: 239.0.0.0
+[2022-11-10T05:20:49.760Z] INFO  laptop-r2tggfdl-53460/TRANSPORTER: UDP Multicast Server is listening on 192.168.1.8:4445. Membership: 239.0.0.0
+[2022-11-10T05:20:49.761Z] INFO  laptop-r2tggfdl-53460/TRANSPORTER: UDP Multicast Server is listening on 127.0.0.1:4445. Membership: 239.0.0.0
+[2022-11-10T05:20:49.764Z] INFO  laptop-r2tggfdl-53460/TRANSPORTER: UDP discovery started.
+[2022-11-10T05:20:49.766Z] INFO  laptop-r2tggfdl-53460/TRANSPORTER: TCP Transporter started.
+[2022-11-10T05:20:50.289Z] INFO  laptop-r2tggfdl-53460/REGISTRY: '$node' service is registered.
+[2022-11-10T05:20:50.290Z] INFO  laptop-r2tggfdl-53460/REGISTRY: 'multiplier' service is registered.
+[2022-11-10T05:20:50.293Z] INFO  laptop-r2tggfdl-53460/$NODE: Service '$node' started.
+[2022-11-10T05:20:50.299Z] INFO  laptop-r2tggfdl-53460/MULTIPLIER: Service 'multiplier' started.
+[2022-11-10T05:20:50.301Z] INFO  laptop-r2tggfdl-53460/BROKER: ✔ ServiceBroker with 2 service(s) started successfully in 564ms.
+mol $ [2022-11-10T05:20:53.977Z] INFO  laptop-r2tggfdl-53460/REGISTRY: Node 'laptop-r2tggfdl-82848' reconnected.
+
+mol $ nodes
+╔═══════════════════════════╤══════════╤═════════╤════════╤════════════════════╤══════════╤════════════════════════════╗
+║ Node ID                   │ Services │ Version │ Client │ IP                 │    State │ CPU                        ║
+╟───────────────────────────┼──────────┼─────────┼────────┼────────────────────┼──────────┼────────────────────────────╢
+║ laptop-r2tggfdl-53460 (*) │ 2        │ 0.14.26 │ nodejs │ 172.21.112.1  (+2) │  ONLINE  │ [■■■.................] 15% ║
+║ laptop-r2tggfdl-82848     │ 3        │ 0.14.26 │ nodejs │ 172.21.112.1  (+2) │  ONLINE  │ [■■..................] 11% ║
+╚═══════════════════════════╧══════════╧═════════╧════════╧════════════════════╧══════════╧════════════════════════════╝
+
+mol $
+.............................................................................................
+			  How to use other Message Brokers
+.....................................................................................
+
+Steps:
+1.You need a message broker software -  redis,nats,rabbitmq...
+
+docker run  --name nats-main -p 4222:4222 -p 6222:6222 -p 8222:8222 nats
+
+2.you need to install driver for connecting third message broker.
+ 
+incase of nat
+ npm install nats --save
+
+3.configure in the service broker
+
+const broker = new ServiceBroker({
+    transporter:"nats://localhost:4222"
+})
+....................................................................................
+			Serialization and Deserialization
+.....................................................................................
+
+Apps deal different type of data like strings,numbers,objects,arrays when we transport these data via 'network' we wont transfer as it is rather we convert 
+that into another format  , this conversion is called as "serialization".
+
+Moleculer takes care of serialization by default.
+The data is seralized into "JSON" By default
+
+The receiver app will deserialze the data into javascript format.
+
+You dont need to tell the serializer , because there is default seralizer
+
+Types of serialzer:
+
+1.JSON
+2.Avro
+3.MsgPack
+4.NotePack
+5.ProtoBuf
+6.Thrift
+7.CBOR
+etc...
+
+How to use MsgPack?
+
+npm install msgpack5 --save
+
+const broker = new ServiceBroker({
+    //transporter 
+    // transporter: "TCP"
+    transporter: "nats://localhost:4222",
+    serializer:"MsgPack"
+})
+.....................................................................................
+			  Methods calls and Caching
+...................................................................................
+
+if you call method over network, the method gets called every time...this is expensive.
+if method is called with same set of parameters, the result would be the same , then why should we call again and again
+
+in order to optimize we have concept called "caching"
+
+Caching types:
+1.in memory cache 
+   The data is cached in the main memory itself.
+  Pros:
+   You dont need any extra softwares to maintain caching.
+   It is super fast
+  Cons:
+    if server restarts, the cached data will be lost....
+    if you want persist cached data even after the server restarts, 
+   you can use third party caching solutions like "redis,Memcached"
+
+Moleculer and Caching:
+ You can configure caching in moleculer.
+
+what type of caching provider you use?
+
+const broker = new ServiceBroker({
+    //transporter 
+    // transporter: "TCP"
+    transporter: "nats://localhost:4222",
+    serializer:"MsgPack",
+    cacher:"Memory" // enables in memory cache- RAM
+})
+
+In the Actions we can configure caching...
+
+actions:{
+  add:{
+    params:{},
+    cache:true,
+    handler(){ }
+  }
+}
+
+In Memory Caching Enabling:
+...........................
+
+const broker = new ServiceBroker({
+    transporter: "nats://localhost:4222",
+    serializer: "MsgPack",
+    cacher: "Memory" // enables in memory cache- RAM
+})
+What if i want third party caching?
+
+
+
+Redis is the most popular implement for caching....
+Steps:
+
+Run redis server
+docker run --name my-redis -p 6379:6379 -d redis
+
+Run redis-client called redis-cli
+
+docker exec -it my-redis sh
+# redis-cli
+127.0.0.1:6379> keys *
+(empty array)
+
+
+2.install redis driver
+npm install ioredis -save
+
+3.const { ServiceBroker } = require('moleculer')
+
+//passing service broker schema : the configuration
+//if you dont supply, the service broker will have its own default values
+const broker = new ServiceBroker({
+    //transporter 
+    // transporter: "TCP"
+    transporter: "nats://localhost:4222",
+    serializer: "MsgPack",
+    //cacher: "Memory" // enables in memory cache- RAM
+    cacher:"Redis" // redis://localhost:6379
+})
+
+//math service 
+broker.createService({
+    name: 'math',
+    actions: {
+        add: {
+            cache: true,
+            handler(ctx) {
+                const { a, b } = ctx.params
+                console.log('Math.calculate is called')
+                //call remote service
+                return ctx.call("add.calculate", { a, b })
+            }
+        }
+    }
+})
+
+
+
+async function main() {
+    try {
+        await broker.start()
+        broker.repl()
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+main()
+
+const { ServiceBroker } = require('moleculer')
+
+
+//passing service broker schema : the configuration
+//if you dont supply, the service broker will have its own default values
+const broker = new ServiceBroker({
+    //transporter 
+    // transporter: "TCP"
+    transporter: "nats://localhost:4222",
+    serializer: "MsgPack",
+    //cacher: "Memory"
+    cacher:"Redis" // redis://localhost:6379
+
+})
+
+//math service 
+broker.createService({
+    name: 'add',
+    actions: {
+        calculate: {
+            cache: true,
+            handler(ctx) {
+                const { a, b } = ctx.params
+                //call remote service
+                console.log('Add.calculate is called')
+                return `${ctx.nodeID} => ${a + b}`
+            }
+        }
+    }
+})
+
+
+
+async function main() {
+    try {
+        await broker.start()
+        broker.repl()
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+main()
+
+
+
+
+
+
+
+	
