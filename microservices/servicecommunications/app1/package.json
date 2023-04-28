@@ -1,7 +1,19 @@
 {
-  "name": "app1",
+  "dependencies": {
+    "fakerator": "^0.3.6",
+    "moleculer": "^0.14.29",
+    "moleculer-db": "^0.8.23",
+    "moleculer-db-adapter-sequelize": "^0.2.15",
+    "moleculer-web": "^0.10.5",
+    "pg": "^8.10.0",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.31.0"
+  },
+  "devDependencies": {
+    "moleculer-repl": "^0.7.3"
+  },
+  "name": "restapp1",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,13 +21,5 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "ioredis": "^5.3.2",
-    "moleculer": "^0.14.29",
-    "msgpack5": "^6.0.2",
-    "nats": "^2.13.1"
-  },
-  "devDependencies": {
-    "moleculer-repl": "^0.7.3"
-  }
+  "description": ""
 }
